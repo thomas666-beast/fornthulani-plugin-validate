@@ -121,6 +121,3 @@ extend("even", |ctx| ctx.value.as_i64().is_some_and(|n| n % 2 == 0),
 let v = Validator::make(json!({"email": "x"}), [("email", "required|email")]);
 if let Err(errors) = v.validate() { println!("{}", errors.to_json()); }
 ```
-
-Status: **not compiled yet** — written without a Rust toolchain. Run
-`cargo fmt && cargo clippy --all-targets && cargo test` and report errors.
