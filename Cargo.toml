@@ -1,0 +1,18 @@
+[package]
+name = "fornthulani-plugin-validate"
+version = "0.1.0"
+edition = "2024"
+description = "Laravel-style request validation for the fornthulani micro HTTP framework."
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/thomas666-beast/fornthulani-plugin-validate"
+keywords = ["fornthulani", "validation", "plugin", "http"]
+categories = ["web-programming::http-server"]
+
+[dependencies]
+fornthulani = { path = "../fornthulani", version = "0.2" }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+regex = "1"
+
+[dev-dependencies]
+reqwest = { version = "0.12", features = ["blocking", "json"] }
