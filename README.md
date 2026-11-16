@@ -1,6 +1,6 @@
 # fornthulani-plugin-validate
 
-Laravel-style validation for [fornthulani](../fornthulani).
+Laravel-style validation for [fornthulani](https://github.com/thomas666-beast/fornthulani).
 
 ```rust
 use fornthulani_plugin_validate::ValidateExt;
