@@ -112,8 +112,45 @@ extend("even", |ctx| ctx.value.as_i64().is_some_and(|n| n % 2 == 0),
        "The :attribute must be even.");
 ```
 
-`fornthulani-plugin-orm` (feature `validation`) registers `unique:` and
-`exists:` this way.
+## Database rules: `unique` and `exists`
+
+This crate has no database code of its own. `fornthulani-plugin-orm`
+(feature `validation`) registers `unique:` and `exists:` through `extend`,
+and runs them on whatever connection the ORM uses, so they work the same
+on **SQLite and PostgreSQL**:
+
+```toml
+fornthulani-plugin-orm = { version = "0.2", features = ["postgres", "validation"] }
+```
+
+```rust
+Db::set(PgConnection::connect(&database_url)?);
+fornthulani_plugin_orm::register_validation_rules();   // once, at startup
+
+req.validate([
+    ("email",   "required|email|unique:users"),               // column defaults to the attribute
+    ("team_id", "required|integer|exists:teams,id"),
+    ("tags",    "array|exists:tags,id"),                      // every element must exist
+    ("plan",    "exists:billing.plans,code,active,true"),     // PostgreSQL schema + extra where
+])?;
+// editing: ignore the current row and soft-deleted rows
+("email", format!("required|email|unique:users,email,{id},id,deleted_at,NULL"))
+```
+
+| Rule | Syntax |
+|---|---|
+| `unique` | `unique:[connection.]table[,column[,ignore[,id_column[,col,val]...]]]` |
+| `exists` | `exists:[connection.]table[,column[,col,val]...]` |
+
+- `ignore` empty or `NULL` ignores nothing; `id_column` defaults to `id`.
+- Extra `col,val` pairs: `NULL` → `IS NULL`, `NOT_NULL` → `IS NOT NULL`,
+  `!x` → `!= x`, `true`/`false` and integers are typed.
+- The prefix in `name.table` is a named ORM connection (`Db::add_connection`)
+  when one exists, otherwise a PostgreSQL schema.
+- Form strings such as `"42"` match integer columns on both databases.
+- Both rules fail closed: unknown table or column, malformed arguments,
+  objects/nulls as values, or a database error all make the field invalid.
+  Identifiers are validated and quoted, values are bound parameters.
 
 ## Without a request
 
